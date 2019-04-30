@@ -1,4 +1,4 @@
-# Syncer
+# syncer
 It is PWA based files & folder syncing application made using UniversalGUI's Client SDK.
 
 - Click on the link to run the [Syncer app](https://isurfer21.github.io/syncer/app/).
