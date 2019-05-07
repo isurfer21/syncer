@@ -58,10 +58,16 @@ class TabController {
         tab.addClass('active');
         box.show();
     }
+    onActivateTab(watcher) {
+        this.watcher = watcher;
+    }
     onClickTab(e) {
         e.preventDefault();
         let tid = $(e.currentTarget).attr('data-id');
         this.activateTab(tid);
+        if (!!this.watcher) {
+            this.watcher(tid);
+        }
     }
     destroy() {
         this.tabs.off('click', this.onClickTab.bind(this));
@@ -123,7 +129,7 @@ class Setting {
     }
     constructor() {
         this.storage = Storage.getInstance();
-        this.tagCtrl = Exclusions.getInstance();
+        this.tagExcluder = Exclusions.getInstance();
     }
     isEmpty(property) {
         return (property === null || property === "" || typeof property === "undefined");
@@ -150,7 +156,7 @@ class Setting {
                 description: this.fieldDescription.val(),
                 sourcepath: this.fieldSourcePath.val(),
                 garagepath: this.fieldGaragePath.val(),
-                exclusions: this.tagCtrl.list
+                exclusions: this.tagExcluder.list
             }
             if (!!this.editing) {
                 this.database[this.index] = cargo;
@@ -163,8 +169,8 @@ class Setting {
     }
     onClear(e) {
         this.editing = false;
-        this.tagCtrl.list = [];
-        this.tagCtrl.render();
+        this.tagExcluder.list = [];
+        this.tagExcluder.render();
         this.trash.hide();
     }
     onTrash(e) {
@@ -177,7 +183,7 @@ class Setting {
     }
     onExclude(e) {
         let excludeItem = this.fieldExclusion.val();
-        this.tagCtrl.create(excludeItem);
+        this.tagExcluder.create(excludeItem);
         this.fieldExclusion.val('');
     }
     update(index) {
@@ -188,9 +194,18 @@ class Setting {
         this.fieldDescription.val(cargo.description);
         this.fieldSourcePath.val(cargo.sourcepath);
         this.fieldGaragePath.val(cargo.garagepath);
-        this.tagCtrl.list = cargo.exclusions;
-        this.tagCtrl.render();
+        this.tagExcluder.list = cargo.exclusions;
+        this.tagExcluder.render();
         this.trash.show();
+    }
+    pause() {
+        this.onClear();
+        this.form.trigger('reset');
+    }
+    resume() {
+        if (this.index != undefined) {
+            this.update(this.index);
+        }
     }
     destroy() {
         this.submit.off('click', this.onSubmit.bind(this));
@@ -224,7 +239,7 @@ class Setting {
         this.trash.on('click', this.onTrash.bind(this));
         this.trash.hide();
 
-        this.tagCtrl.initialize(this.cid, 'exclusions');
+        this.tagExcluder.initialize(this.cid, 'exclusions');
 
         this.database = this.storage.retrieve();
         if (!this.database) {
@@ -465,7 +480,6 @@ class Action {
         e.preventDefault();
         if (!!this.cargo) {
             let syncDirection = this.fieldSyncDirection.val();
-            // console.log('onSubmit', syncDirection);
             if (!!this.session) {
                 this.tunnel.terminal(this.genCommand.bind(this, syncDirection), this.session, this.getResponse.bind(this), this.onFailure.bind(this));
             } else {
@@ -474,6 +488,21 @@ class Action {
         } else {
             this.feedback.danger('Error: No item is selected');
         }
+    }
+    onClear() {
+        this.instruction.html('');
+        this.form.trigger('reset');
+    }
+    pause() {
+        this.onClear();
+    }
+    resume() {
+        if (this.index != undefined) {
+            this.view(this.index);
+        }
+    }
+    destroy() {
+        this.submit.off('click', this.onSubmit.bind(this));
     }
     initialize(containerId) {
         this.cid = containerId;
@@ -559,10 +588,23 @@ class InputTopbar {
         }
         return this.instance;
     }
+    onChange(activeTab) {
+        switch (activeTab) {
+            case 'action':
+                Setting.getInstance().pause();
+                Action.getInstance().resume();
+                break;
+            case 'setting':
+                Action.getInstance().pause();
+                Setting.getInstance().resume();
+                break;
+        }
+    }
     initialize(containerId) {
         this.controller = new TabController();
         this.controller.initialize(containerId, 'inputtopbar');
         this.controller.activateTab('action');
+        this.controller.onActivateTab(this.onChange.bind(this));
     }
 }
 
