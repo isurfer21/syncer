@@ -2,7 +2,7 @@
 <html class="no-js" lang="">
 
 <head>
-    <meta>
+    <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Syncer</title>
     <meta name="description" content="">
@@ -38,7 +38,7 @@
                         <div data-id="error" class="nc-tab-item__topbar tab-item">Error</div>
                     </div>
                     <div>
-                        <div data-id="input" class="nc-tab-content__topbar padded-more">
+                        <section data-id="input" class="nc-tab-content__topbar padded-more ns-curved-border">
                             <fieldset>
                                 <legend>
                                     <div class="btn-group">
@@ -54,10 +54,10 @@
                                     <div class="nc-feedback"></div>
                                     <div class="nc-instruction"></div>
                                     <div class="form-group">
-                                        <label>Sync direction</label>
+                                        <label>Direction of sync</label>
                                         <select name="syncdirection" class="form-control ns-dropdown">
-                                            <option value="s2g">Source &rarr; Garage</option>
-                                            <option value="g2s">Source &larr; Garage</option>
+                                            <option value="s2g">Forward sync, i.e., Source &rarr; Garage</option>
+                                            <option value="g2s">Reverse sync, i.e., Source &larr; Garage</option>
                                         </select>
                                     </div>
                                     <div class="form-actions">
@@ -93,12 +93,13 @@
                                     <div class="form-actions">
                                         <button type="submit" class="btn btn-large btn-form btn-primary">Submit</button>
                                         <button type="reset" class="btn btn-large btn-form btn-default">Clear</button>
+                                        <button type="button" name="trash" class="btn btn-large btn-form btn-negative">Trash</button>
                                     </div>
                                 </form>
                             </fieldset>
-                        </div>
-                        <div data-id="output" class="nc-tab-content__topbar padded-more">Output</div>
-                        <div data-id="error" class="nc-tab-content__topbar padded-more">Error</div>
+                        </section>
+                        <pre data-id="output" class="nc-tab-content__topbar padded-more ns-console">N/A</pre>
+                        <pre data-id="error" class="nc-tab-content__topbar padded-more ns-console">N/A</pre>
                     </div>
                 </div>
             </div>

@@ -49,12 +49,7 @@ class TabController {
     TAB_ITEM = '.nc-tab-item__[0]'
     TAB_CONTENT = '.nc-tab-content__[0]'
     DATA_ID = '[data-id="[1]"]'
-    constructor(container, prefix) {
-        this.prefix = prefix
-        this.container = $('#' + container);
-        this.tabs = this.container.find(this.TAB_ITEM.graft(prefix));
-        this.boxes = this.container.find(this.TAB_CONTENT.graft(prefix));
-    }
+    constructor() {}
     activateTab(tid) {
         this.tabs.removeClass('active');
         this.boxes.hide();
@@ -71,9 +66,50 @@ class TabController {
     destroy() {
         this.tabs.off('click', this.onClickTab.bind(this));
     }
-    initialize() {
+    initialize(container, prefix) {
+        this.prefix = prefix
+        this.container = $('#' + container);
+        this.tabs = this.container.find(this.TAB_ITEM.graft(prefix));
+        this.boxes = this.container.find(this.TAB_CONTENT.graft(prefix));
         this.boxes.hide();
         this.tabs.on('click', this.onClickTab.bind(this));
+    }
+}
+
+class Feedback {
+    constructor(container) {
+        this.container = container;
+    }
+    onClick(e) {
+        this.hide();
+    }
+    show(type, message) {
+        this.container.removeClass('info success warning danger');
+        this.container.addClass(type);
+        this.container.html(message);
+        this.container.show();
+    }
+    info(message) {
+        this.show('info', message);
+    }
+    success(message) {
+        this.show('success', message);
+    }
+    warning(message) {
+        this.show('warning', message);
+    }
+    danger(message) {
+        this.show('danger', message);
+    }
+    hide() {
+        this.container.hide();
+    }
+    destroy() {
+        this.container.off('click', this.onClick.bind(this));
+    }
+    initialize() {
+        this.container.on('click', this.onClick.bind(this));
+        this.hide();
     }
 }
 
@@ -92,16 +128,22 @@ class Setting {
     isEmpty(property) {
         return (property === null || property === "" || typeof property === "undefined");
     }
+    refresh() {
+        this.storage.store(this.database);
+        Sidebar.getInstance().render();
+        Search.getInstance().refresh();
+        this.feedback.hide();
+    }
     onSubmit(e) {
         e.preventDefault();
         if (this.isEmpty(this.fieldTitle.val())) {
-            this.feedback.html('Error: Title field is required').show();
+            this.feedback.danger('Error: Title field is required');
         } else if (this.isEmpty(this.fieldDescription.val())) {
-            this.feedback.html('Error: Description field is required').show();
+            this.feedback.danger('Error: Description field is required');
         } else if (this.isEmpty(this.fieldSourcePath.val())) {
-            this.feedback.html('Error: SourcePath field is required').show();
+            this.feedback.danger('Error: SourcePath field is required');
         } else if (this.isEmpty(this.fieldGaragePath.val())) {
-            this.feedback.html('Error: GaragePath field is required').show();
+            this.feedback.danger('Error: GaragePath field is required');
         } else {
             let cargo = {
                 title: this.fieldTitle.val(),
@@ -115,16 +157,23 @@ class Setting {
             } else {
                 this.database.push(cargo);
             }
-            this.storage.store(this.database);
-            Sidebar.getInstance().render();
-            Search.getInstance().refresh();
-            this.feedback.hide();
+            this.refresh();
+            this.feedback.success('Saved!');
         }
     }
     onClear(e) {
         this.editing = false;
         this.tagCtrl.list = [];
         this.tagCtrl.render();
+        this.trash.hide();
+    }
+    onTrash(e) {
+        if (!!this.editing) {
+            this.database.splice(this.index, 1);
+            this.onClear(e);
+            this.refresh();
+            this.feedback.success('Deleted!');
+        }
     }
     onExclude(e) {
         let excludeItem = this.fieldExclusion.val();
@@ -141,6 +190,7 @@ class Setting {
         this.fieldGaragePath.val(cargo.garagepath);
         this.tagCtrl.list = cargo.exclusions;
         this.tagCtrl.render();
+        this.trash.show();
     }
     destroy() {
         this.submit.off('click', this.onSubmit.bind(this));
@@ -152,9 +202,8 @@ class Setting {
         this.container = $('#' + this.cid);
         this.form = this.container.find('form[data-id="setting"]');
 
-        this.feedback = this.form.find('.nc-feedback');
-        this.feedback.on('click', (e) => this.feedback.hide());
-        this.feedback.hide();
+        this.feedback = new Feedback(this.form.find('.nc-feedback'));
+        this.feedback.initialize();
 
         this.fieldTitle = this.form.find('input[name="title"]');
         this.fieldDescription = this.form.find('textarea[name="description"]');
@@ -170,6 +219,10 @@ class Setting {
 
         this.clear = this.form.find('button[type="reset"]');
         this.clear.on('click', this.onClear.bind(this));
+
+        this.trash = this.form.find('button[name="trash"]');
+        this.trash.on('click', this.onTrash.bind(this));
+        this.trash.hide();
 
         this.tagCtrl.initialize(this.cid, 'exclusions');
 
@@ -327,20 +380,97 @@ class Action {
     }
     constructor() {
         this.storage = Storage.getInstance();
+        this.tunnel = new Tunnel();
+        this.session = null;
     }
     view(index) {
         this.index = index;
         this.database = this.storage.retrieve();
         this.cargo = this.database[index];
-        let content = '<p><span><b>[0]</b></span><br><span>[1]</span></p>'.graft(this.cargo.title, this.cargo.description);
+        let content = '<fieldset><legend>[0]</legend>[1]</fieldset>'.graft(this.cargo.title, this.cargo.description);
         this.instruction.html(content);
+    }
+    onFailure(options, status, error) {
+        // console.log('Action.onFailure', status, error);
+        this.feedback.danger('[0]: [1]'.graft(status, error));
+    }
+    detectOS() {
+        var os = "Unknown OS";
+        if (navigator.appVersion.indexOf("Win") != -1) {
+            os = "Windows";
+        }
+        if (navigator.appVersion.indexOf("Mac") != -1) {
+            os = "MacOS";
+        }
+        if (navigator.appVersion.indexOf("X11") != -1) {
+            os = "UNIX";
+        }
+        if (navigator.appVersion.indexOf("Linux") != -1) {
+            os = "Linux";
+        }
+        return os;
+    }
+    getSession(token) {
+        console.log('Action.getSession', token);
+        this.session = token;
+    }
+    getResponse(result) {
+        console.log('Action.getResponse', result);
+        if (!!result) {
+            if (result.out != '') {
+                Topbar.getInstance().controller.activateTab('output');
+            } else if (result.err != '') {
+                Topbar.getInstance().controller.activateTab('error');
+            }
+            Output.getInstance().content(result);
+            Error.getInstance().content(result);
+        }
+    }
+    genCommand(syncWay) {
+        console.log('Action.genCommand', syncWay);
+        let cmd = '';
+        let pl = {};
+        if (syncWay == 's2g') {
+            pl = {
+                source: this.cargo.sourcepath,
+                destiny: this.cargo.garagepath,
+                exclude: this.cargo.exclusions
+            };
+        } else {
+            pl = {
+                source: this.cargo.garagepath,
+                destiny: this.cargo.sourcepath,
+                exclude: this.cargo.exclusions
+            };
+        }
+        switch (this.detectOS()) {
+            case 'Windows':
+                cmd = 'ROBOCOPY [source]\ [destiny]\ /MIR /FFT /Z /XA:H /W:5 /XD [exclude]'.graft(pl);
+                break;
+            case 'MacOS':
+                cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
+                break;
+            case 'UNIX':
+                cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
+                break;
+            case 'Linux':
+                cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
+                break;
+            default:
+        }
     }
     onSubmit(e) {
         e.preventDefault();
         if (!!this.cargo) {
-            console.log('onSubmit', this.fieldSyncDirection.val());
+            let syncDirection = this.fieldSyncDirection.val();
+            // console.log('onSubmit', syncDirection);
+            if (!!this.session) {
+                this.tunnel.terminal(this.genCommand(syncDirection), this.session, this.getResponse, this.onFailure);
+            } else {
+                this.feedback.danger('Error: Unauthorized session');
+            }
         } else {
-            this.feedback.html('Error: No item is selected').show();
+            this.feedback.danger('Error: No item is selected');
         }
     }
     initialize(containerId) {
@@ -348,9 +478,8 @@ class Action {
         this.container = $('#' + this.cid);
         this.form = this.container.find('form[data-id="action"]');
 
-        this.feedback = this.form.find('.nc-feedback');
-        this.feedback.on('click', (e) => this.feedback.hide());
-        this.feedback.hide();
+        this.feedback = new Feedback(this.form.find('.nc-feedback'));
+        this.feedback.initialize();
 
         this.instruction = this.form.find('.nc-instruction');
 
@@ -358,6 +487,80 @@ class Action {
 
         this.submit = this.form.find('button[type="submit"]');
         this.submit.on('click', this.onSubmit.bind(this));
+
+        this.tunnel.session(this.getSession.bind(this), this.onFailure);
+    }
+}
+
+class Output {
+    static instance
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new Output();
+        }
+        return this.instance;
+    }
+    content(data) {
+        if (data.out != '') {
+            let str = '≻ [0]\n\n[1]'.graft(data.cmd, data.out);
+            this.output.text(str);
+        }
+    }
+    initialize(containerId) {
+        this.cid = containerId;
+        this.container = $('#' + this.cid);
+        this.output = this.container.find('pre[data-id="output"]');
+    }
+}
+
+class Error {
+    static instance
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new Error();
+        }
+        return this.instance;
+    }
+    content(data) {
+        if (data.err != '') {
+            let str = '$ [0]\n\n[1]'.graft(data.cmd, data.err);
+            this.error.text(str);
+        }
+    }
+    initialize(containerId) {
+        this.cid = containerId;
+        this.container = $('#' + this.cid);
+        this.error = this.container.find('pre[data-id="error"]');
+    }
+}
+
+class Topbar {
+    static instance
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new Topbar();
+        }
+        return this.instance;
+    }
+    initialize(containerId) {
+        this.controller = new TabController();
+        this.controller.initialize(containerId, 'topbar');
+        this.controller.activateTab('input');
+    }
+}
+
+class InputTopbar {
+    static instance
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new InputTopbar();
+        }
+        return this.instance;
+    }
+    initialize(containerId) {
+        this.controller = new TabController();
+        this.controller.initialize(containerId, 'inputtopbar');
+        this.controller.activateTab('action');
     }
 }
 
@@ -367,44 +570,21 @@ $(function() {
 
     let appSidebar = Sidebar.getInstance();
     let appSearch = Search.getInstance();
-    let inputSetting = Setting.getInstance();
-    let inputAction = Action.getInstance();
+    let appInputSetting = Setting.getInstance();
+    let appInputAction = Action.getInstance();
+    let appOutput = Output.getInstance();
+    let appError = Error.getInstance();
 
     appSidebar.initialize('appsidebar');
     appSearch.initialize('appsidebar');
-    inputSetting.initialize('appcontainer');
-    inputAction.initialize('appcontainer');
+    appInputSetting.initialize('appcontainer');
+    appInputAction.initialize('appcontainer');
+    appOutput.initialize('appcontainer');
+    appError.initialize('appcontainer');
 
-    let appTopbar = new TabController('appcontainer', 'topbar');
-    appTopbar.initialize();
-    appTopbar.activateTab('input');
+    let appTopbar = Topbar.getInstance();
+    appTopbar.initialize('appcontainer');
 
-    let inputTopbar = new TabController('appcontainer', 'inputtopbar');
-    inputTopbar.initialize();
-    inputTopbar.activateTab('action');
-
-    let tunnel = new Tunnel();
-
-    let failure = (options, status, error) => {
-        console.log('main.failure', status, error);
-    };
-
-    function createSession() {
-        console.log('createSession');
-        tunnel.session((token) => {
-            console.log('main.session.success', token);
-            executeCommand('ls', token);
-        }, failure);
-    }
-
-    function executeCommand(command, token) {
-        console.log('executeCommand', command, token);
-        tunnel.terminal(command, token,
-            (result) => {
-                console.log('main.terminal.success', result);
-            }, failure
-        );
-    }
-
-    // createSession();
+    let appInputTopbar = InputTopbar.getInstance();
+    appInputTopbar.initialize('appcontainer');
 });

@@ -3,58 +3,102 @@
     text-align: left;
     padding-left: 5px;
 }
+
 .nc-list-wrapper__appsidebar {
-	overflow-x: hidden;
-	overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
+
 .ns-dropdown {
     height: 32px;
 }
+
 .ns-input-with-button input {
-	padding-right: 94px;
+    padding-right: 94px;
 }
+
 .ns-input-with-button button {
-	float: right;
+    float: right;
     position: relative;
     margin-top: -32px;
     border-top-left-radius: 1px;
     border-bottom-left-radius: 1px;
     height: 32px;
 }
+
 .nc-tag-box__exclusions {
-	display: block;
+    display: block;
     margin: 5px 0;
 }
+
 .nc-tag-box__exclusions .nc-tag {
-	background-color: lightgrey;
-	border-radius: 3px;
-	display: inline-block;
-	margin-right: 5px;
+    background-color: lightgrey;
+    border-radius: 3px;
+    display: inline-block;
+    margin-right: 5px;
 }
+
 .nc-tag-box__exclusions .ns-label {
-	padding: 3px 5px;
+    padding: 3px 5px;
     font-size: 10px;
 }
+
 .nc-tag-box__exclusions .nc-button {
-	padding: 3px 5px;
+    padding: 3px 5px;
     color: white;
     border-left: 1px dotted white;
     cursor: pointer;
 }
+
 .nc-tag-box__exclusions .nc-button:hover {
-	color: red;
+    color: red;
 }
+
 form .nc-feedback {
-	color: tomato;
-	cursor: pointer;
-	background-color: whitesmoke;
+    cursor: pointer;
     padding: 3px 9px;
-    border-radius: 3px;
+    border-radius: 4px;
     margin-bottom: 10px;
 }
-form .nc-feedback::before {
-	content: '⚠ ';
+
+form .nc-feedback.info {
+    color: royalblue;
+    background-color: aliceblue;
 }
-form .nc-feedback:hover {
-	background-color: ghostwhite;
+
+form .nc-feedback.success {
+    color: forestgreen;
+    background-color: honeydew;
+}
+
+form .nc-feedback.warning {
+    color: darkorange;
+    background-color: cornsilk;
+}
+
+form .nc-feedback.danger {
+    color: indianred;
+    background-color: lavenderblush;
+}
+
+.ns-console {
+    background-color: darkslategrey;
+    color: white;
+    margin-top: 0px;
+}
+
+.nc-instruction fieldset {
+    border-color: gainsboro;
+    margin-bottom: 15px;
+}
+
+.nc-instruction legend {
+    border: 1px solid gainsboro;
+    padding: 0 5px;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.ns-curved-border fieldset {
+    border-radius: 4px;
 }
