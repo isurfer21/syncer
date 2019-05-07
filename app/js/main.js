@@ -457,7 +457,9 @@ class Action {
                 cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
                 break;
             default:
+                cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
         }
+        return cmd;
     }
     onSubmit(e) {
         e.preventDefault();
@@ -465,7 +467,7 @@ class Action {
             let syncDirection = this.fieldSyncDirection.val();
             // console.log('onSubmit', syncDirection);
             if (!!this.session) {
-                this.tunnel.terminal(this.genCommand(syncDirection), this.session, this.getResponse, this.onFailure);
+                this.tunnel.terminal(this.genCommand.bind(this, syncDirection), this.session, this.getResponse.bind(this), this.onFailure.bind(this));
             } else {
                 this.feedback.danger('Error: Unauthorized session');
             }
@@ -488,7 +490,7 @@ class Action {
         this.submit = this.form.find('button[type="submit"]');
         this.submit.on('click', this.onSubmit.bind(this));
 
-        this.tunnel.session(this.getSession.bind(this), this.onFailure);
+        this.tunnel.session(this.getSession.bind(this), this.onFailure.bind(this));
     }
 }
 
