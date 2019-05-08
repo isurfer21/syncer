@@ -172,6 +172,7 @@ class Setting {
         this.tagExcluder.list = [];
         this.tagExcluder.render();
         this.trash.hide();
+        this.submit.html('Submit');
     }
     onTrash(e) {
         if (!!this.editing) {
@@ -186,9 +187,10 @@ class Setting {
         this.tagExcluder.create(excludeItem);
         this.fieldExclusion.val('');
     }
-    update(index) {
+    view(index) {
         this.editing = true;
         this.index = index;
+        this.database = this.storage.retrieve();
         let cargo = this.database[index];
         this.fieldTitle.val(cargo.title);
         this.fieldDescription.val(cargo.description);
@@ -197,14 +199,16 @@ class Setting {
         this.tagExcluder.list = cargo.exclusions;
         this.tagExcluder.render();
         this.trash.show();
+        this.submit.html('Save');
     }
-    pause() {
+    deactivate() {
         this.onClear();
         this.form.trigger('reset');
+        this.feedback.hide();
     }
-    resume() {
+    activate() {
         if (this.index != undefined) {
-            this.update(this.index);
+            this.view(this.index);
         }
     }
     destroy() {
@@ -269,7 +273,7 @@ class Sidebar {
     }
     onClickItem(e) {
         let index = $(e.currentTarget).data('index');
-        Setting.getInstance().update(index);
+        Setting.getInstance().view(index);
         Action.getInstance().view(index);
     }
     render() {
@@ -441,6 +445,17 @@ class Action {
             Error.getInstance().content(result);
         }
     }
+    getListAsString(listicle, delimiter, prefix) {
+        let output = '',
+            list = [];
+        if (!!listicle) {
+            for (let i = 0; i < listicle.length; i++) {
+                list.push('[0]"[1]"'.graft(((!!prefix) ? prefix : ''), listicle[i]));
+            }
+            output = list.join(delimiter);
+        }
+        return output;
+    };
     genCommand(syncWay) {
         console.log('Action.genCommand', syncWay);
         let cmd = '';
@@ -448,31 +463,25 @@ class Action {
         if (syncWay == 's2g') {
             pl = {
                 source: this.cargo.sourcepath,
-                destiny: this.cargo.garagepath,
-                exclude: this.cargo.exclusions
+                destiny: this.cargo.garagepath
             };
         } else {
             pl = {
                 source: this.cargo.garagepath,
-                destiny: this.cargo.sourcepath,
-                exclude: this.cargo.exclusions
+                destiny: this.cargo.sourcepath
             };
         }
         switch (this.detectOS()) {
             case 'Windows':
+                pl.exclude = this.getListAsString(this.cargo.exclusions, ' ');
                 cmd = 'ROBOCOPY [source]\ [destiny]\ /MIR /FFT /Z /XA:H /W:5 /XD [exclude]'.graft(pl);
                 break;
             case 'MacOS':
-                cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
-                break;
             case 'UNIX':
-                cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
-                break;
             case 'Linux':
+                pl.exclude = this.getListAsString(this.cargo.exclusions, ' ', '--exclude=');
                 cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
                 break;
-            default:
-                cmd = 'rsync -av "[source]/" "[destiny]/" --delete [exclude]'.graft(pl);
         }
         return cmd;
     }
@@ -493,10 +502,11 @@ class Action {
         this.instruction.html('');
         this.form.trigger('reset');
     }
-    pause() {
+    deactivate() {
         this.onClear();
+        this.feedback.hide();
     }
-    resume() {
+    activate() {
         if (this.index != undefined) {
             this.view(this.index);
         }
@@ -591,12 +601,12 @@ class InputTopbar {
     onChange(activeTab) {
         switch (activeTab) {
             case 'action':
-                Setting.getInstance().pause();
-                Action.getInstance().resume();
+                Setting.getInstance().deactivate();
+                Action.getInstance().activate();
                 break;
             case 'setting':
-                Action.getInstance().pause();
-                Setting.getInstance().resume();
+                Action.getInstance().deactivate();
+                Setting.getInstance().activate();
                 break;
         }
     }
@@ -605,6 +615,38 @@ class InputTopbar {
         this.controller.initialize(containerId, 'inputtopbar');
         this.controller.activateTab('action');
         this.controller.onActivateTab(this.onChange.bind(this));
+    }
+}
+
+class About {
+    static instance
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new About();
+        }
+        return this.instance;
+    }
+    onOpenHelp(e) {
+        this.modalHelp.show();
+    }
+    onCloseHelp(e) {
+        this.modalHelp.hide();
+    }
+    initialize(containerId) {
+        this.appHeader = $('.window > header.toolbar-header');
+        this.appHeaderHelp = this.appHeader.find('.icon');
+        this.appHeaderHelp.on('click', this.onOpenHelp.bind(this));
+
+        this.modalHelp = $('#' + containerId);
+        this.modalHelp.hide();
+
+        this.modalHelpHeader = this.modalHelp.find('header.toolbar-header');
+        this.modalHelpClose = this.modalHelpHeader.find('.icon');
+        this.modalHelpClose.on('click', this.onCloseHelp.bind(this));
+
+        this.currentYear = this.modalHelp.find('.nc-currentyear');
+        let cYear = (new Date()).getFullYear()
+        this.currentYear.html((cYear > 2019) ? '-' + cYear : '');
     }
 }
 
@@ -618,6 +660,7 @@ $(function() {
     let appInputAction = Action.getInstance();
     let appOutput = Output.getInstance();
     let appError = Error.getInstance();
+    let appAbout = About.getInstance();
 
     appSidebar.initialize('appsidebar');
     appSearch.initialize('appsidebar');
@@ -625,6 +668,7 @@ $(function() {
     appInputAction.initialize('appcontainer');
     appOutput.initialize('appcontainer');
     appError.initialize('appcontainer');
+    appAbout.initialize('appabout');
 
     let appTopbar = Topbar.getInstance();
     appTopbar.initialize('appcontainer');
