@@ -327,7 +327,7 @@ class Search {
     }
     onKeyUp(e) {
         let searchStr = this.fieldSearch.val();
-        if (!!this.database & this.database.length > 0) {
+        if (!!this.database && this.database.length > 0) {
             let list = [];
             for (let i = 0; i < this.database.length; i++) {
                 if (this.database[i].title.indexOf(searchStr) >= 0 || this.database[i].description.indexOf(searchStr) >= 0) {
