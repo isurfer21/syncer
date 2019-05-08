@@ -9,7 +9,8 @@
     float: right;
     position: relative;
     cursor: pointer;
-    margin: 0 4px;
+    padding: 0 4px;
+    background: transparent;
 }
 
 .nc-list-wrapper__appsidebar {
