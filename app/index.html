@@ -7,9 +7,12 @@
     <title>Syncer</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css"> -->
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/photon.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="manifest" href="manifest.json">
+    </link>
 </head>
 
 <body>
@@ -18,9 +21,11 @@
         <![endif]-->
     <!-- Add your site or application content here -->
     <div class="window">
-        <header class="toolbar toolbar-header">
+        <header class="toolbar toolbar-header ns-appheader">
+            <img src="img/icon_24x24.png" class="ns-appicon">
             <h1 class="title">Syncer</h1>
-            <span class="icon icon-help-circled" title="About"></span>
+            <span class="icon icon-help-circled" data-link="about" title="About"></span>
+            <span class="icon icon-info-circled" data-link="info" title="Info"></span>
         </header>
         <div id="appmain" class="window-content">
             <div class="pane-group">
@@ -105,22 +110,53 @@
                 </div>
             </div>
         </div>
+        <div id="applogin" class="nc-modal">
+            <header class="toolbar toolbar-header">
+                <h1 class="title">Login</h1>
+                <span data-id="close" class="icon icon-cancel-circled" title="Close"></span>
+            </header>
+            <form class="padded-more">
+                <div class="nc-feedback"></div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" class="form-control" name="username" placeholder="e.g., admin" title="Enter the username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password" placeholder="e.g., 123456" title="Enter the password">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-large btn-form btn-primary">Submit</button>
+                    <button type="reset" class="btn btn-large btn-form btn-default">Clear</button>
+                </div>
+            </form>
+        </div>
         <div id="appabout" class="nc-modal">
             <header class="toolbar toolbar-header">
                 <h1 class="title">About</h1>
-                <span class="icon icon-cancel-circled" title="Close"></span>
+                <span data-id="close" class="icon icon-cancel-circled" title="Close"></span>
             </header>
-            <div class="nc-modal-content padded-more">
-                <h4>Syncer</h4>
-                <i>Version 1.0.0</i><br>
-                <br>
-                Developed by <a href="https://github.com/isurfer21">Abhishek Kumar</a>.<br>
-                Powered by <a href="https://github.com/isurfer21/tunnel">Tunnel</a>.<br>
-                <br>
-                Copyright &copy; 2019<span class="nc-currentyear"></span> <a href="http://www.nistush.in">Nistush Tech Solutions</a>.<br>
-                Licensed under MIT license.
+            <div class="padded-more">
+                <div class="ns-row">
+                    <div class="ns-col">
+                        <img src="img/icon_96x96.png" class="ns-applogo">
+                    </div>
+                    <div class="ns-col">
+                        <h4>Syncer</h4>
+                        <i>Version 1.0.0</i>
+                    </div>
+                </div>
+                <div>
+                    <br>
+                    Developed by <a href="https://github.com/isurfer21">Abhishek Kumar</a>.<br>
+                    Powered by <a href="https://github.com/isurfer21/tunnel">Tunnel</a>.<br>
+                    <br>
+                    Copyright &copy; 2019<span class="nc-currentyear"></span> <a href="http://www.nistush.in">Nistush Tech Solutions</a>.<br>
+                    Licensed under MIT license.
+                </div>
             </div>
         </div>
+        <div id="overlay" class="ns-overlay"></div>
     </div>
     <!-- 
     <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -129,6 +165,7 @@
     <script src="js/jquery-3.4.0.min.js" type="text/javascript"></script>
     <script src="js/tunnel.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
+    <script src="serviceWorker1/pwabuilder-sw-register.js" type="text/javascript"></script>
 </body>
 
 </html>

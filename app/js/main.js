@@ -146,8 +146,8 @@ class Setting {
             this.feedback.danger('Error: Title field is required');
         } else if (this.isEmpty(this.fieldDescription.val())) {
             this.feedback.danger('Error: Description field is required');
-        } else if (this.isEmpty(this.fieldSourcePath.val())) {
-            this.feedback.danger('Error: SourcePath field is required');
+        } else if (this.isEmpty(this.fieldUsername.val())) {
+            this.feedback.danger('Error: SPasswordfield is required');
         } else if (this.isEmpty(this.fieldGaragePath.val())) {
             this.feedback.danger('Error: GaragePath field is required');
         } else {
@@ -529,7 +529,7 @@ class Action {
         this.submit = this.form.find('button[type="submit"]');
         this.submit.on('click', this.onSubmit.bind(this));
 
-        this.tunnel.session(this.getSession.bind(this), this.onFailure.bind(this));
+        this.tunnel.session(Login.getInstance().apiKey, this.getSession.bind(this), this.onFailure.bind(this));
     }
 }
 
@@ -618,6 +618,61 @@ class InputTopbar {
     }
 }
 
+class Modal {
+    constructor(container) {
+        this.container = $(container);
+    }
+    open() {
+        this.container.show();
+        this.appOverlay.show();
+    }
+    close() {
+        this.container.hide();
+        this.appOverlay.hide();
+    }
+    destroy() {
+        this.btnClose.off('click', this.close.bind(this));
+        this.appOverlay.hide();
+    }
+    initialize() {
+        this.btnClose = this.container.find('.icon[data-id="close"]');
+        this.btnClose.on('click', this.close.bind(this));
+
+        this.appOverlay = $('#overlay');
+
+        this.close();
+    }
+}
+
+class ControlPanel {
+    static instance
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new ControlPanel();
+        }
+        return this.instance;
+    }
+    onOpenInfo(e) {
+        window.open('https://isurfer21.github.io/syncer', '_blank');
+    }
+    onOpenAbout(e) {
+        About.getInstance().modal.open();
+    }
+    initialize() {
+        this.appHeader = $('.window > header.toolbar-header');
+
+        this.appHeaderAbout = this.appHeader.find('.icon[data-link="about"]');
+        this.appHeaderAbout.on('click', this.onOpenAbout.bind(this));
+
+        this.appHeaderInfo = this.appHeader.find('.icon[data-link="info"]');
+        this.appHeaderInfo.on('click', this.onOpenInfo.bind(this));
+
+        this.currentYear = $('.nc-currentyear');
+        let cYear = (new Date()).getFullYear()
+        this.currentYear.html((cYear > 2019) ? '-' + cYear : '');
+    }
+}
+
 class About {
     static instance
     static getInstance() {
@@ -626,27 +681,54 @@ class About {
         }
         return this.instance;
     }
-    onOpenHelp(e) {
-        this.modalHelp.show();
+    initialize(containerId) {
+        this.modal = new Modal('#' + containerId);
+        this.modal.initialize();
     }
-    onCloseHelp(e) {
-        this.modalHelp.hide();
+}
+
+class Login {
+    static instance
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new Login();
+        }
+        return this.instance;
+    }
+    constructor() {
+        this.tunnel = new Tunnel();
+    }
+    onSubmit(e) {
+        e.preventDefault();
+
+        let username = this.fieldUsername.val();
+        let password = this.fieldPassword.val();
+
+        this.apiKey = this.tunnel.genApiKey(username, password);
+        console.log('Login.apiKey', this.apiKey);
+
+        this.modal.close();
+    }
+    destroy() {
+        this.submit.off('click', this.onSubmit.bind(this));
     }
     initialize(containerId) {
-        this.appHeader = $('.window > header.toolbar-header');
-        this.appHeaderHelp = this.appHeader.find('.icon');
-        this.appHeaderHelp.on('click', this.onOpenHelp.bind(this));
+        this.cid = containerId;
+        this.container = $('#' + this.cid);
 
-        this.modalHelp = $('#' + containerId);
-        this.modalHelp.hide();
+        this.modal = new Modal('#' + this.cid);
+        this.modal.initialize();
 
-        this.modalHelpHeader = this.modalHelp.find('header.toolbar-header');
-        this.modalHelpClose = this.modalHelpHeader.find('.icon');
-        this.modalHelpClose.on('click', this.onCloseHelp.bind(this));
+        this.form = this.container.find('form');
 
-        this.currentYear = this.modalHelp.find('.nc-currentyear');
-        let cYear = (new Date()).getFullYear()
-        this.currentYear.html((cYear > 2019) ? '-' + cYear : '');
+        this.fieldUsername = this.form.find('input[name="username"]');
+        this.fieldPassword = this.form.find('input[name="password"]');
+
+        this.feedback = new Feedback(this.form.find('.nc-feedback'));
+        this.feedback.initialize();
+
+        this.submit = this.form.find('button[type="submit"]');
+        this.submit.on('click', this.onSubmit.bind(this));
     }
 }
 
@@ -660,7 +742,9 @@ $(function() {
     let appInputAction = Action.getInstance();
     let appOutput = Output.getInstance();
     let appError = Error.getInstance();
+    let appControlPanel = ControlPanel.getInstance();
     let appAbout = About.getInstance();
+    let appLogin = Login.getInstance();
 
     appSidebar.initialize('appsidebar');
     appSearch.initialize('appsidebar');
@@ -668,7 +752,10 @@ $(function() {
     appInputAction.initialize('appcontainer');
     appOutput.initialize('appcontainer');
     appError.initialize('appcontainer');
+    appControlPanel.initialize();
     appAbout.initialize('appabout');
+    appLogin.initialize('applogin');
+    appLogin.modal.open();
 
     let appTopbar = Topbar.getInstance();
     appTopbar.initialize('appcontainer');
