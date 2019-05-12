@@ -511,6 +511,9 @@ class Action {
             this.view(this.index);
         }
     }
+    ready() {        
+        this.tunnel.session(Login.getInstance().apiKey, this.getSession.bind(this), this.onFailure.bind(this));
+    }
     destroy() {
         this.submit.off('click', this.onSubmit.bind(this));
     }
@@ -528,8 +531,6 @@ class Action {
 
         this.submit = this.form.find('button[type="submit"]');
         this.submit.on('click', this.onSubmit.bind(this));
-
-        this.tunnel.session(Login.getInstance().apiKey, this.getSession.bind(this), this.onFailure.bind(this));
     }
 }
 
@@ -705,8 +706,8 @@ class Login {
         let password = this.fieldPassword.val();
 
         this.apiKey = this.tunnel.genApiKey(username, password);
-        console.log('Login.apiKey', this.apiKey);
 
+        Action.getInstance().ready();
         this.modal.close();
     }
     destroy() {
