@@ -511,7 +511,7 @@ class Action {
             this.view(this.index);
         }
     }
-    ready() {        
+    ready() {
         this.tunnel.session(Login.getInstance().apiKey, this.getSession.bind(this), this.onFailure.bind(this));
     }
     destroy() {
@@ -632,13 +632,19 @@ class Modal {
         this.appOverlay.hide();
     }
     destroy() {
-        this.btnClose.off('click', this.close.bind(this));
+        if (this.closeable) {
+            this.btnClose.off('click', this.close.bind(this));
+        }
         this.appOverlay.hide();
     }
-    initialize() {
+    initialize(closeable) {
+        this.closeable = !!closeable;
         this.btnClose = this.container.find('.icon[data-id="close"]');
-        this.btnClose.on('click', this.close.bind(this));
-
+        if (this.closeable) {
+            this.btnClose.on('click', this.close.bind(this));
+        } else {
+            this.btnClose.hide();
+        }
         this.appOverlay = $('#overlay');
 
         this.close();
@@ -684,7 +690,7 @@ class About {
     }
     initialize(containerId) {
         this.modal = new Modal('#' + containerId);
-        this.modal.initialize();
+        this.modal.initialize(true);
     }
 }
 
@@ -718,7 +724,7 @@ class Login {
         this.container = $('#' + this.cid);
 
         this.modal = new Modal('#' + this.cid);
-        this.modal.initialize();
+        this.modal.initialize(false);
 
         this.form = this.container.find('form');
 
