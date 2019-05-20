@@ -146,7 +146,7 @@ class Setting {
             this.feedback.danger('Error: Title field is required');
         } else if (this.isEmpty(this.fieldDescription.val())) {
             this.feedback.danger('Error: Description field is required');
-        } else if (this.isEmpty(this.fieldUsername.val())) {
+        } else if (this.isEmpty(this.fieldSourcePath.val())) {
             this.feedback.danger('Error: SPasswordfield is required');
         } else if (this.isEmpty(this.fieldGaragePath.val())) {
             this.feedback.danger('Error: GaragePath field is required');
