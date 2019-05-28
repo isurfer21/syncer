@@ -25,8 +25,8 @@
         <header class="toolbar toolbar-header ns-appheader">
             <img src="img/icon_24x24.png" class="ns-appicon">
             <h1 class="title">Syncer</h1>
-            <span class="icon icon-help-circled" data-link="about" title="About"></span>
-            <span class="icon icon-info-circled" data-link="info" title="Info"></span>
+            <span class="icon icon-help-circled ns-clickable" data-link="about" title="About"></span>
+            <span class="icon icon-info-circled ns-clickable" data-link="info" title="Info"></span>
         </header>
         <div id="appmain" class="window-content">
             <div class="pane-group">
@@ -40,15 +40,16 @@
                 </div>
                 <div id="appcontainer" class="pane">
                     <div class="tab-group">
-                        <div data-id="input" class="nc-tab-item__topbar tab-item">Input</div>
-                        <div data-id="output" class="nc-tab-item__topbar tab-item">Output</div>
-                        <div data-id="error" class="nc-tab-item__topbar tab-item">Error</div>
+                        <div data-id="input" class="nc-tab-item__topbar tab-item ns-clickable">Input</div>
+                        <div data-id="output" class="nc-tab-item__topbar tab-item ns-clickable">Output</div>
+                        <div data-id="error" class="nc-tab-item__topbar tab-item ns-clickable">Error</div>
                     </div>
                     <div>
                         <section data-id="input" class="nc-tab-content__topbar padded-more ns-curved-border">
                             <fieldset>
                                 <legend>
-                                    <div class="btn-group">
+                                    <div data-id="newinput" class="ns-generic-legend">New</div>
+                                    <div data-id="oldinput" class="btn-group">
                                         <button data-id="action" class="nc-tab-item__inputtopbar btn btn-default">
                                             <span>Action</span>
                                         </button>
@@ -58,7 +59,7 @@
                                     </div>
                                 </legend>
                                 <form data-id="action" class="nc-tab-content__inputtopbar padded-more">
-                                    <div class="nc-feedback"></div>
+                                    <div class="nc-feedback ns-clickable"></div>
                                     <div class="nc-instruction"></div>
                                     <div class="form-group">
                                         <label>Direction of sync</label>
@@ -74,19 +75,19 @@
                                 <form data-id="setting" class="nc-tab-content__inputtopbar padded-more">
                                     <div class="nc-feedback"></div>
                                     <div class="form-group">
-                                        <label>Title</label>
+                                        <label>Title<span class="ns-required-mark" title="Required">*</span></label>
                                         <input type="text" class="form-control" name="title" placeholder="Title of task" title="Enter the title of this task">
                                     </div>
                                     <div class="form-group">
-                                        <label>Description</label>
+                                        <label>Description<span class="ns-required-mark" title="Required">*</span></label>
                                         <textarea class="form-control" name="description" rows="3" placeholder="A brief description of the task" title="Enter the brief description of this task"></textarea>
                                     </div>
                                     <div class="form-group">
-                                        <label>Source path</label>
+                                        <label>Source path<span class="ns-required-mark" title="Required">*</span></label>
                                         <input type="text" class="form-control" name="sourcepath" placeholder="/Users/person1/Documents/Git" title="Enter the absolute path of source repository">
                                     </div>
                                     <div class="form-group">
-                                        <label>Garage path</label>
+                                        <label>Garage path<span class="ns-required-mark" title="Required">*</span></label>
                                         <input type="text" class="form-control" name="garagepath" placeholder="/Users/person1/Documents/Lab" title="Enter the absolute path of garage repository">
                                     </div>
                                     <div class="form-group">
@@ -114,7 +115,7 @@
         <div id="applogin" class="nc-modal">
             <header class="toolbar toolbar-header">
                 <h1 class="title">Login</h1>
-                <span data-id="close" class="icon icon-cancel-circled" title="Close"></span>
+                <span data-id="close" class="icon icon-cancel-circled ns-clickable" title="Close"></span>
             </header>
             <form class="padded-more">
                 <div class="nc-feedback"></div>
@@ -135,7 +136,7 @@
         <div id="appabout" class="nc-modal">
             <header class="toolbar toolbar-header">
                 <h1 class="title">About</h1>
-                <span data-id="close" class="icon icon-cancel-circled" title="Close"></span>
+                <span data-id="close" class="icon icon-cancel-circled ns-clickable" title="Close"></span>
             </header>
             <div class="padded-more">
                 <div class="ns-row">

@@ -147,7 +147,7 @@ class Setting {
         } else if (this.isEmpty(this.fieldDescription.val())) {
             this.feedback.danger('Error: Description field is required');
         } else if (this.isEmpty(this.fieldSourcePath.val())) {
-            this.feedback.danger('Error: SPasswordfield is required');
+            this.feedback.danger('Error: SourcePath field is required');
         } else if (this.isEmpty(this.fieldGaragePath.val())) {
             this.feedback.danger('Error: GaragePath field is required');
         } else {
@@ -173,6 +173,7 @@ class Setting {
         this.tagExcluder.render();
         this.trash.hide();
         this.submit.html('Submit');
+        InputTopbar.getInstance().forNewEntry(true);
     }
     onTrash(e) {
         if (!!this.editing) {
@@ -200,6 +201,7 @@ class Setting {
         this.tagExcluder.render();
         this.trash.show();
         this.submit.html('Save');
+        InputTopbar.getInstance().forNewEntry(false);
     }
     deactivate() {
         this.onClear();
@@ -264,7 +266,7 @@ class Sidebar {
         this.storage = Storage.getInstance();
     }
     genItem(title, description, index) {
-        return `<li class="nc-list-item__[3] list-group-item" data-index="[2]">
+        return `<li class="nc-list-item__[3] list-group-item ns-clickable" data-index="[2]">
             <div class="media-body">
                 <strong>[0]</strong>
                 <p>[1]</p>
@@ -275,6 +277,8 @@ class Sidebar {
         let index = $(e.currentTarget).data('index');
         Setting.getInstance().view(index);
         Action.getInstance().view(index);
+        Topbar.getInstance().reset();
+        InputTopbar.getInstance().forNewEntry(false);
     }
     render() {
         this.database = this.storage.retrieve();
@@ -366,7 +370,7 @@ class Exclusions {
         for (let i = 0; i < this.list.length; i++) {
             tags.push(`<span class="nc-tag" data-id="[0]">
                 <span class="ns-label">[1]</span>
-                <span class="nc-button icon icon-cancel"></span>
+                <span class="nc-button icon icon-cancel ns-clickable"></span>
             </span>`.graft(i, this.list[i]));
         }
         this.container.find('.nc-button').off('click', this.remove.bind(this));
@@ -408,6 +412,7 @@ class Action {
         this.cargo = this.database[index];
         let content = '<fieldset><legend>[0]</legend>[1]</fieldset>'.graft(this.cargo.title, this.cargo.description);
         this.instruction.html(content);
+        InputTopbar.getInstance().forNewEntry(false);
     }
     onFailure(options, status, error) {
         // console.log('Action.onFailure', status, error);
@@ -584,6 +589,9 @@ class Topbar {
         }
         return this.instance;
     }
+    reset() {
+        this.controller.activateTab('input');
+    }
     initialize(containerId) {
         this.controller = new TabController();
         this.controller.initialize(containerId, 'topbar');
@@ -611,11 +619,28 @@ class InputTopbar {
                 break;
         }
     }
+    forNewEntry(bool) {
+        if(bool) {
+            this.oldinput.hide();
+            this.newinput.show();
+        } else {
+            this.oldinput.show();
+            this.newinput.hide();
+        }
+    }
     initialize(containerId) {
+        this.cid = containerId;
+        this.container = $('#' + this.cid);
+
         this.controller = new TabController();
         this.controller.initialize(containerId, 'inputtopbar');
         this.controller.activateTab('action');
         this.controller.onActivateTab(this.onChange.bind(this));
+
+        this.newinput = this.container.find('[data-id="newinput"]');
+        this.oldinput = this.container.find('[data-id="oldinput"]');
+
+        this.forNewEntry(true);
     }
 }
 

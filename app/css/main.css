@@ -14,7 +14,6 @@
 .toolbar-header .icon {
     float: right;
     position: relative;
-    cursor: pointer;
     padding: 0 4px;
     background: transparent;
     margin-top: 1px;
@@ -24,7 +23,8 @@
     color: grey;
 }
 
-.btn {
+.btn, 
+.btn * {
     cursor: pointer;
 }
 
@@ -71,7 +71,6 @@
     padding: 3px 5px;
     color: white;
     border-left: 1px dotted white;
-    cursor: pointer;
 }
 
 .nc-tag-box__exclusions .nc-button:hover {
@@ -79,7 +78,6 @@
 }
 
 form .nc-feedback {
-    cursor: pointer;
     padding: 3px 9px;
     border-radius: 4px;
     margin-bottom: 10px;
@@ -185,4 +183,24 @@ form .nc-feedback.danger {
 .ns-row .ns-col {
     position: relative;
     float: left;
+}
+
+.ns-clickable,
+.ns-clickable * {
+    cursor: pointer;
+}
+
+.ns-required-mark {
+    color: red;
+}
+
+.ns-generic-legend {
+    color: #fff;
+    background-color: #6d6c6d;
+    padding: 3px 8px;
+    margin-bottom: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    border: 1px solid transparent;
+    border-radius: 4px;
 }
