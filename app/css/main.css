@@ -81,6 +81,8 @@ form .nc-feedback {
     padding: 3px 9px;
     border-radius: 4px;
     margin-bottom: 10px;
+    text-transform: capitalize;
+    cursor: pointer;
 }
 
 form .nc-feedback.info {

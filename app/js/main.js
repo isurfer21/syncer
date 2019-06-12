@@ -434,8 +434,7 @@ class Action {
         }
         return os;
     }
-    getSession(token) {
-        console.log('Action.getSession', token);
+    setSession(token) {
         this.session = token;
     }
     getResponse(result) {
@@ -515,9 +514,6 @@ class Action {
         if (this.index != undefined) {
             this.view(this.index);
         }
-    }
-    ready() {
-        this.tunnel.session(Login.getInstance().apiKey, this.getSession.bind(this), this.onFailure.bind(this));
     }
     destroy() {
         this.submit.off('click', this.onSubmit.bind(this));
@@ -737,8 +733,15 @@ class Login {
         let password = this.fieldPassword.val();
 
         this.apiKey = this.tunnel.genApiKey(username, password);
-
-        Action.getInstance().ready();
+        this.tunnel.session(this.apiKey, this.getSession.bind(this), this.onFailure.bind(this));
+    }
+    onFailure(options, status, error) {
+        // console.log('Login.onFailure', status, error);
+        this.feedback.danger('[0]: [1]'.graft(status, error));
+    }
+    getSession(token) {
+        console.log('Login.getSession', token);
+        Action.getInstance().setSession(token);
         this.modal.close();
     }
     destroy() {
