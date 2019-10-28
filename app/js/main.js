@@ -402,8 +402,11 @@ class Action {
         return this.instance;
     }
     constructor() {
+        console.log('Action.constructor');
         this.storage = Storage.getInstance();
-        this.tunnel = new Tunnel();
+    }
+    setTunnel(ref) {
+        this.tunnel = ref;
     }
     view(index) {
         this.index = index;
@@ -487,7 +490,7 @@ class Action {
     }
     onSubmit(e) {
         e.preventDefault();
-        if (!!this.cargo) {
+        if (this.cargo == undefined) {
             let syncDirection = this.fieldSyncDirection.val();
             this.tunnel.terminal(this.genCommand.bind(this, syncDirection), this.getResponse.bind(this), this.onFailure.bind(this));
         } else {
@@ -721,18 +724,24 @@ class Login {
     onSubmit(e) {
         e.preventDefault();
 
+        let tunnelUrl = this.fieldTunnelUrl.val();
         let username = this.fieldUsername.val();
         let password = this.fieldPassword.val();
 
-        this.tunnel.login(username, password);
+        this.tunnel.login(username, password, tunnelUrl);
         this.tunnel.authenticate(this.getResponse.bind(this), this.onFailure.bind(this));
     }
     onFailure(options, status, error) {
         console.log('Login.onFailure', status, error);
-        this.feedback.danger('[0]: [1]'.graft(status, error));
+        if (!!status && !!error) {
+            this.feedback.danger('[0]: [1]'.graft(status, error));
+        } else {
+            this.feedback.danger('Request failure: Execution of request failed');
+        }
     }
     getResponse(result) {
         console.log('Login.getResponse', result);
+        Action.getInstance().setTunnel(this.tunnel);
         this.modal.close();
     }
     destroy() {
@@ -747,10 +756,11 @@ class Login {
 
         this.form = this.container.find('form');
 
+        this.fieldTunnelUrl = this.form.find('input[name="tunnelurl"]');
         this.fieldUsername = this.form.find('input[name="username"]');
         this.fieldPassword = this.form.find('input[name="password"]');
 
-        this.feedback = new Feedback(this.form.find('.nc-feedback'));
+        this.feedback = new Feedback(this.container.find('.nc-feedback'));
         this.feedback.initialize();
 
         this.submit = this.form.find('button[type="submit"]');

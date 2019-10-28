@@ -1,15 +1,15 @@
 // @file tunnel.js
 class Tunnel {
-    hostUrl = 'http://127.0.0.1:9999';
-    constructor(newUrl) {
-        if (!!newUrl) {
-            this.hostUrl = newUrl;
-        }
+    hostUrl
+    authToken
+    constructor() {
+        console.log('Tunnel.constructor');
     }
     toURLQuery(json) {
         return Object.keys(json).map((k) => String(encodeURIComponent(k) + '=' + encodeURIComponent(json[k]))).join('&');
     }
-    login(username, password) {
+    login(username, password, tunnelUrl) {
+        this.hostUrl = tunnelUrl || 'http://127.0.0.1:9999';
         this.authToken = btoa(username + ':' + password);
     }
     request(service, payload, success, failure) {
@@ -25,7 +25,7 @@ class Tunnel {
         xhr.addEventListener('error', () => failure(xhr, xhr.statusText, xhr.responseText));
 
         xhr.open('POST', service);
-        xhr.setRequestHeader('authorization', 'Basic ' + this.authToken);
+        xhr.setRequestHeader('authorization', 'Basic ' + (this.authToken || this.tunnel.authToken));
         xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
 
         (!!payload) ? xhr.send(this.toURLQuery(payload)) : xhr.send();
