@@ -404,7 +404,6 @@ class Action {
     constructor() {
         this.storage = Storage.getInstance();
         this.tunnel = new Tunnel();
-        this.session = null;
     }
     view(index) {
         this.index = index;
@@ -415,7 +414,7 @@ class Action {
         InputTopbar.getInstance().forNewEntry(false);
     }
     onFailure(options, status, error) {
-        // console.log('Action.onFailure', status, error);
+        console.log('Action.onFailure', status, error);
         this.feedback.danger('[0]: [1]'.graft(status, error));
     }
     detectOS() {
@@ -433,9 +432,6 @@ class Action {
             os = "Linux";
         }
         return os;
-    }
-    setSession(token) {
-        this.session = token;
     }
     getResponse(result) {
         console.log('Action.getResponse', result);
@@ -493,11 +489,7 @@ class Action {
         e.preventDefault();
         if (!!this.cargo) {
             let syncDirection = this.fieldSyncDirection.val();
-            if (!!this.session) {
-                this.tunnel.terminal(this.genCommand.bind(this, syncDirection), this.session, this.getResponse.bind(this), this.onFailure.bind(this));
-            } else {
-                this.feedback.danger('Error: Unauthorized session');
-            }
+            this.tunnel.terminal(this.genCommand.bind(this, syncDirection), this.getResponse.bind(this), this.onFailure.bind(this));
         } else {
             this.feedback.danger('Error: No item is selected');
         }
@@ -732,16 +724,15 @@ class Login {
         let username = this.fieldUsername.val();
         let password = this.fieldPassword.val();
 
-        this.apiKey = this.tunnel.genApiKey(username, password);
-        this.tunnel.session(this.apiKey, this.getSession.bind(this), this.onFailure.bind(this));
+        this.tunnel.login(username, password);
+        this.tunnel.authenticate(this.getResponse.bind(this), this.onFailure.bind(this));
     }
     onFailure(options, status, error) {
-        // console.log('Login.onFailure', status, error);
+        console.log('Login.onFailure', status, error);
         this.feedback.danger('[0]: [1]'.graft(status, error));
     }
-    getSession(token) {
-        console.log('Login.getSession', token);
-        Action.getInstance().setSession(token);
+    getResponse(result) {
+        console.log('Login.getResponse', result);
         this.modal.close();
     }
     destroy() {

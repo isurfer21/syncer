@@ -1,7 +1,10 @@
 # syncer
 It is PWA based files & folder syncing application made using [Tunnel](https://github.com/isurfer21/tunnel) SDK.
 
-- Click on the link to run the [Syncer app](https://isurfer21.github.io/syncer/app/).
+### Usage
+1. Install the [Tunnel](https://github.com/isurfer21/tunnel/) SDK.
+2. Run `tunnel -x true` command on terminal to enable cross-domain communication.
+3. Click on the link to run the [Syncer app](https://isurfer21.github.io/syncer/app/).
 
 ### Description
 To ease the workflow, we have developed the **syncer** tool that could make a copy of *cloned repository* in your local working directory, so that your *working repository* could be separated from the *cloned repository* that is used for reference and final code commit. 
