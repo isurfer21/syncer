@@ -14,6 +14,19 @@ String.prototype.graft = function() {
     return self;
 };
 
+String.prototype.toSentenceCase = function() {
+    let self = this;
+    if ((self===null) || (self==='')) {
+        return false;
+    } else {
+        self = self.toString();
+    }
+    return self.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+}
+
+
 class Storage {
     static instance
     static getInstance() {
@@ -437,7 +450,7 @@ class Action {
     }
     onFailure(options, status, error) {
         console.log('Action.onFailure', status, error);
-        this.feedback.danger('[0]: [1]'.graft(status, error));
+        this.feedback.danger('[0]: [1]'.graft(status.toSentenceCase(), error));
     }
     detectOS() {
         var os = "Unknown OS";
@@ -774,6 +787,12 @@ class Login {
         e.preventDefault();
 
         let tunnelUrl = this.fieldTunnelUrl.val();
+        if (!!tunnelUrl) {
+            let pattern = new RegExp('^(http|https):\/\/');
+            if (!tunnelUrl.match(pattern)) {
+                tunnelUrl = 'http://' + tunnelUrl;
+            }
+        }
         let username = this.fieldUsername.val();
         let password = this.fieldPassword.val();
 
@@ -783,7 +802,7 @@ class Login {
     onFailure(options, status, error) {
         console.log('Login.onFailure', status, error);
         if (!!status && !!error) {
-            this.feedback.danger('[0]: [1]'.graft(status, error));
+            this.feedback.danger('[0]: [1]'.graft(status.toSentenceCase(), error));
         } else {
             this.feedback.danger('Request failure: Execution of request failed');
         }
