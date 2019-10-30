@@ -49,7 +49,9 @@ class TabController {
     TAB_ITEM = '.nc-tab-item__[0]'
     TAB_CONTENT = '.nc-tab-content__[0]'
     DATA_ID = '[data-id="[1]"]'
-    constructor() {}
+    constructor() {
+        this.steers = {};
+    }
     activateTab(tid) {
         this.tabs.removeClass('active');
         this.boxes.hide();
@@ -70,7 +72,7 @@ class TabController {
         }
     }
     destroy() {
-        this.tabs.off('click', this.onClickTab.bind(this));
+        this.tabs.off('click', this.steers.onClickTab);
     }
     initialize(container, prefix) {
         this.prefix = prefix
@@ -78,13 +80,15 @@ class TabController {
         this.tabs = this.container.find(this.TAB_ITEM.graft(prefix));
         this.boxes = this.container.find(this.TAB_CONTENT.graft(prefix));
         this.boxes.hide();
-        this.tabs.on('click', this.onClickTab.bind(this));
+        this.steers.onClickTab = this.onClickTab.bind(this);
+        this.tabs.on('click', this.steers.onClickTab);
     }
 }
 
 class Feedback {
     constructor(container) {
         this.container = container;
+        this.steers = {};
     }
     onClick(e) {
         this.hide();
@@ -111,10 +115,11 @@ class Feedback {
         this.container.hide();
     }
     destroy() {
-        this.container.off('click', this.onClick.bind(this));
+        this.container.off('click', this.steers.onClick);
     }
     initialize() {
-        this.container.on('click', this.onClick.bind(this));
+        this.steers.onClick = this.onClick.bind(this);
+        this.container.on('click', this.steers.onClick);
         this.hide();
     }
 }
@@ -130,6 +135,7 @@ class Setting {
     constructor() {
         this.storage = Storage.getInstance();
         this.tagExcluder = Exclusions.getInstance();
+        this.steers = {};
     }
     isEmpty(property) {
         return (property === null || property === "" || typeof property === "undefined");
@@ -214,8 +220,10 @@ class Setting {
         }
     }
     destroy() {
-        this.submit.off('click', this.onSubmit.bind(this));
-        this.clear.off('click', this.onClear.bind(this));
+        this.exclude.off('click', this.steers.onExclude);
+        this.submit.off('click', this.steers.onSubmit);
+        this.clear.off('click', this.steers.onClear);
+        this.trash.off('click', this.steers.onTrash);
     }
     initialize(containerId) {
         this.editing = false;
@@ -233,16 +241,20 @@ class Setting {
         this.fieldExclusion = this.form.find('input[name="exclusion"]');
 
         this.exclude = this.form.find('button[for="exclusion"]');
-        this.exclude.on('click', this.onExclude.bind(this));
+        this.steers.onExclude = this.onExclude.bind(this);
+        this.exclude.on('click', this.steers.onExclude);
 
         this.submit = this.form.find('button[type="submit"]');
-        this.submit.on('click', this.onSubmit.bind(this));
+        this.steers.onSubmit = this.onSubmit.bind(this);
+        this.submit.on('click', this.steers.onSubmit);
 
         this.clear = this.form.find('button[type="reset"]');
-        this.clear.on('click', this.onClear.bind(this));
+        this.steers.onClear = this.onClear.bind(this);
+        this.clear.on('click', this.steers.onClear);
 
         this.trash = this.form.find('button[name="trash"]');
-        this.trash.on('click', this.onTrash.bind(this));
+        this.steers.onTrash = this.onTrash.bind(this);
+        this.trash.on('click', this.steers.onTrash);
         this.trash.hide();
 
         this.tagExcluder.initialize(this.cid, 'exclusions');
@@ -264,6 +276,7 @@ class Sidebar {
     }
     constructor() {
         this.storage = Storage.getInstance();
+        this.steers = {};
     }
     genItem(title, description, index) {
         return `<li class="nc-list-item__[3] list-group-item ns-clickable" data-index="[2]">
@@ -279,6 +292,7 @@ class Sidebar {
         Action.getInstance().view(index);
         Topbar.getInstance().reset();
         InputTopbar.getInstance().forNewEntry(false);
+        InputTopbar.getInstance().controller.activateTab(InputTopbar.ACTION);
     }
     render() {
         this.database = this.storage.retrieve();
@@ -328,6 +342,7 @@ class Search {
     }
     constructor() {
         this.storage = Storage.getInstance();
+        this.steers = {};
     }
     onKeyUp(e) {
         let searchStr = this.fieldSearch.val();
@@ -345,13 +360,14 @@ class Search {
         this.database = this.storage.retrieve();
     }
     destroy() {
-        this.fieldSearch.off('keyup', this.onKeyUp.bind(this));
+        this.fieldSearch.off('keyup', this.steers.onKeyUp);
     }
     initialize(containerId) {
         this.cid = containerId
         this.container = $('#' + this.cid);
         this.fieldSearch = this.container.find('.nc-list-search__[0] input'.graft(this.cid));
-        this.fieldSearch.on('keyup', this.onKeyUp.bind(this));
+        this.steers.onKeyUp = this.onKeyUp.bind(this);
+        this.fieldSearch.on('keyup', this.steers.onKeyUp);
         this.refresh();
     }
 }
@@ -364,7 +380,9 @@ class Exclusions {
         }
         return this.instance;
     }
-    constructor() {}
+    constructor() {
+        this.steers = {};
+    }
     render() {
         let tags = [];
         for (let i = 0; i < this.list.length; i++) {
@@ -404,6 +422,7 @@ class Action {
     constructor() {
         console.log('Action.constructor');
         this.storage = Storage.getInstance();
+        this.steers = {};
     }
     setTunnel(ref) {
         this.tunnel = ref;
@@ -440,9 +459,9 @@ class Action {
         console.log('Action.getResponse', result);
         if (!!result) {
             if (result.out != '') {
-                Topbar.getInstance().controller.activateTab('output');
+                Topbar.getInstance().controller.activateTab(Topbar.OUTPUT);
             } else if (result.err != '') {
-                Topbar.getInstance().controller.activateTab('error');
+                Topbar.getInstance().controller.activateTab(Topbar.ERROR);
             }
             Output.getInstance().content(result);
             Error.getInstance().content(result);
@@ -490,7 +509,7 @@ class Action {
     }
     onSubmit(e) {
         e.preventDefault();
-        if (this.cargo == undefined) {
+        if (this.cargo != undefined) {
             let syncDirection = this.fieldSyncDirection.val();
             this.tunnel.terminal(this.genCommand.bind(this, syncDirection), this.getResponse.bind(this), this.onFailure.bind(this));
         } else {
@@ -501,6 +520,12 @@ class Action {
         this.instruction.html('');
         this.form.trigger('reset');
     }
+    onAddNew(e) {
+        e.preventDefault();
+        console.log('Action.onAddNew');
+        InputTopbar.getInstance().forNewEntry(true);
+        InputTopbar.getInstance().controller.activateTab(InputTopbar.SETTING);
+    }
     deactivate() {
         this.onClear();
         this.feedback.hide();
@@ -509,6 +534,7 @@ class Action {
         if (this.index != undefined) {
             this.view(this.index);
         }
+        // this.addNew.show();
     }
     destroy() {
         this.submit.off('click', this.onSubmit.bind(this));
@@ -527,6 +553,9 @@ class Action {
 
         this.submit = this.form.find('button[type="submit"]');
         this.submit.on('click', this.onSubmit.bind(this));
+
+        this.addNew = this.form.find('button[type="button"]');
+        this.addNew.on('click', this.onAddNew.bind(this));
     }
 }
 
@@ -573,6 +602,9 @@ class Error {
 }
 
 class Topbar {
+    static INPUT = 'input'
+    static OUTPUT = 'output'
+    static ERROR = 'error'
     static instance
     static getInstance() {
         if (!this.instance) {
@@ -581,16 +613,18 @@ class Topbar {
         return this.instance;
     }
     reset() {
-        this.controller.activateTab('input');
+        this.controller.activateTab(Topbar.INPUT);
     }
     initialize(containerId) {
         this.controller = new TabController();
         this.controller.initialize(containerId, 'topbar');
-        this.controller.activateTab('input');
+        this.controller.activateTab(Topbar.INPUT);
     }
 }
 
 class InputTopbar {
+    static ACTION = 'action'
+    static SETTING = 'setting'
     static instance
     static getInstance() {
         if (!this.instance) {
@@ -598,13 +632,16 @@ class InputTopbar {
         }
         return this.instance;
     }
+    constructor() {
+        this.steers = {};
+    }
     onChange(activeTab) {
         switch (activeTab) {
-            case 'action':
+            case InputTopbar.ACTION:
                 Setting.getInstance().deactivate();
                 Action.getInstance().activate();
                 break;
-            case 'setting':
+            case InputTopbar.SETTING:
                 Action.getInstance().deactivate();
                 Setting.getInstance().activate();
                 break;
@@ -625,7 +662,7 @@ class InputTopbar {
 
         this.controller = new TabController();
         this.controller.initialize(containerId, 'inputtopbar');
-        this.controller.activateTab('action');
+        this.controller.activateTab(InputTopbar.ACTION);
         this.controller.onActivateTab(this.onChange.bind(this));
 
         this.newinput = this.container.find('[data-id="newinput"]');
@@ -638,6 +675,7 @@ class InputTopbar {
 class Modal {
     constructor(container) {
         this.container = $(container);
+        this.steers = {};
     }
     open() {
         this.container.show();
@@ -649,15 +687,16 @@ class Modal {
     }
     destroy() {
         if (this.closeable) {
-            this.btnClose.off('click', this.close.bind(this));
+            this.btnClose.off('click', this.steers.close);
         }
         this.appOverlay.hide();
     }
     initialize(closeable) {
         this.closeable = !!closeable;
         this.btnClose = this.container.find('.icon[data-id="close"]');
+        this.steers.close = this.close.bind(this);
         if (this.closeable) {
-            this.btnClose.on('click', this.close.bind(this));
+            this.btnClose.on('click', this.steers.close);
         } else {
             this.btnClose.hide();
         }
@@ -675,20 +714,29 @@ class ControlPanel {
         }
         return this.instance;
     }
+    constructor() {
+        this.steers = {};
+    }
     onOpenInfo(e) {
         window.open('https://isurfer21.github.io/syncer', '_blank');
     }
     onOpenAbout(e) {
         About.getInstance().modal.open();
     }
+    destroy() {
+        this.appHeaderAbout.off('click', this.onOpenAbout);
+        this.appHeaderInfo.off('click', this.onOpenInfo);
+    }
     initialize() {
         this.appHeader = $('.window > header.toolbar-header');
 
         this.appHeaderAbout = this.appHeader.find('.icon[data-link="about"]');
-        this.appHeaderAbout.on('click', this.onOpenAbout.bind(this));
+        this.steers.onOpenAbout = this.onOpenAbout.bind(this);
+        this.appHeaderAbout.on('click', this.steers.onOpenAbout);
 
         this.appHeaderInfo = this.appHeader.find('.icon[data-link="info"]');
-        this.appHeaderInfo.on('click', this.onOpenInfo.bind(this));
+        this.steers.onOpenInfo = this.onOpenInfo.bind(this);
+        this.appHeaderInfo.on('click', this.steers.onOpenInfo);
 
         this.currentYear = $('.nc-currentyear');
         let cYear = (new Date()).getFullYear()
@@ -720,6 +768,7 @@ class Login {
     }
     constructor() {
         this.tunnel = new Tunnel();
+        this.steers = {};
     }
     onSubmit(e) {
         e.preventDefault();
@@ -745,7 +794,7 @@ class Login {
         this.modal.close();
     }
     destroy() {
-        this.submit.off('click', this.onSubmit.bind(this));
+        this.submit.off('click', this.steers.onSubmit);
     }
     initialize(containerId) {
         this.cid = containerId;
@@ -764,7 +813,8 @@ class Login {
         this.feedback.initialize();
 
         this.submit = this.form.find('button[type="submit"]');
-        this.submit.on('click', this.onSubmit.bind(this));
+        this.steers.onSubmit = this.onSubmit.bind(this);
+        this.submit.on('click', this.steers.onSubmit);
     }
 }
 

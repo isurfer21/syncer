@@ -77,29 +77,38 @@
     color: red;
 }
 
-.nc-modal .nc-feedback {
+form .nc-feedback {
+    margin-bottom: 10px;
+}
+
+.nc-modal .nc-feedback,
+form .nc-feedback {
     padding: 3px 9px;
     border-radius: 4px;
     text-transform: capitalize;
     cursor: pointer;
 }
 
-.nc-modal .nc-feedback.info {
+.nc-modal .nc-feedback.info,
+form .nc-feedback.info {
     color: royalblue;
     background-color: aliceblue;
 }
 
-.nc-modal .nc-feedback.success {
+.nc-modal .nc-feedback.success,
+form .nc-feedback.success {
     color: forestgreen;
     background-color: honeydew;
 }
 
-.nc-modal .nc-feedback.warning {
+.nc-modal .nc-feedback.warning,
+form .nc-feedback.warning {
     color: darkorange;
     background-color: cornsilk;
 }
 
-.nc-modal .nc-feedback.danger {
+.nc-modal .nc-feedback.danger,
+form .nc-feedback.danger {
     color: indianred;
     background-color: lavenderblush;
 }
