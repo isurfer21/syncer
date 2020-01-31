@@ -749,7 +749,7 @@ class ControlPanel {
         InputTopbar.getInstance().forNewEntry(true);
         InputTopbar.getInstance().controller.activateTab(InputTopbar.SETTING);
     }
-    onOpenInfo(e) {
+    onOpenHelp(e) {
         window.open('https://isurfer21.github.io/syncer', '_blank');
     }
     onOpenAbout(e) {
@@ -757,7 +757,7 @@ class ControlPanel {
     }
     destroy() {
         this.appHeaderAbout.off('click', this.onOpenAbout);
-        this.appHeaderInfo.off('click', this.onOpenInfo);
+        this.appHeaderHelp.off('click', this.onOpenHelp);
     }
     initialize() {
         this.appHeader = $('.window > header.toolbar-header');
@@ -766,9 +766,9 @@ class ControlPanel {
         this.steers.onOpenAbout = this.onOpenAbout.bind(this);
         this.appHeaderAbout.on('click', this.steers.onOpenAbout);
 
-        this.appHeaderInfo = this.appHeader.find('.icon[data-link="info"]');
-        this.steers.onOpenInfo = this.onOpenInfo.bind(this);
-        this.appHeaderInfo.on('click', this.steers.onOpenInfo);
+        this.appHeaderHelp = this.appHeader.find('.icon[data-link="help"]');
+        this.steers.onOpenHelp = this.onOpenHelp.bind(this);
+        this.appHeaderHelp.on('click', this.steers.onOpenHelp);
 
         this.appHeaderNew = this.appHeader.find('.icon[data-link="new"]');
         this.steers.onOpenNew = this.onOpenNew.bind(this);
