@@ -233,3 +233,7 @@ form .nc-feedback.danger {
     border: 1px solid transparent;
     border-radius: 4px;
 }
+
+.ns-rt {
+    float: right;
+}
