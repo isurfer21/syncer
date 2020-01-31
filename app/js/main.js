@@ -471,6 +471,9 @@ class Action {
     getResponse(result) {
         console.log('Action.getResponse', result);
         if (!!result) {
+            if (typeof result == 'string') {
+                result = JSON.parse(result);
+            }
             if (result.out != '') {
                 Topbar.getInstance().controller.activateTab(Topbar.OUTPUT);
             } else if (result.err != '') {
@@ -524,7 +527,7 @@ class Action {
         e.preventDefault();
         if (this.cargo != undefined) {
             let syncDirection = this.fieldSyncDirection.val();
-            this.tunnel.terminal(this.genCommand.bind(this, syncDirection), this.getResponse.bind(this), this.onFailure.bind(this));
+            this.tunnel.terminal(this.steers.genCommand(syncDirection), this.steers.getResponse, this.steers.onFailure);
         } else {
             this.feedback.danger('Error: No item is selected');
         }
@@ -550,7 +553,8 @@ class Action {
         // this.addNew.show();
     }
     destroy() {
-        this.submit.off('click', this.onSubmit.bind(this));
+        this.submit.off('click', this.steers.onSubmit);
+        this.addNew.off('click', this.steers.onAddNew);
     }
     initialize(containerId) {
         this.cid = containerId;
@@ -565,10 +569,16 @@ class Action {
         this.fieldSyncDirection = this.form.find('select[name="syncdirection"]');
 
         this.submit = this.form.find('button[type="submit"]');
-        this.submit.on('click', this.onSubmit.bind(this));
+        this.steers.onSubmit = this.onSubmit.bind(this);
+        this.submit.on('click', this.steers.onSubmit);
 
         this.addNew = this.form.find('button[type="button"]');
-        this.addNew.on('click', this.onAddNew.bind(this));
+        this.steers.onAddNew = this.onAddNew.bind(this);
+        this.addNew.on('click', this.steers.onAddNew);
+
+        this.steers.genCommand = this.genCommand.bind(this);
+        this.steers.getResponse = this.getResponse.bind(this);
+        this.steers.onFailure = this.onFailure.bind(this);
     }
 }
 

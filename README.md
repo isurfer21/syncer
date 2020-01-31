@@ -3,7 +3,7 @@ It is PWA based files & folder syncing application made using [Tunnel](https://g
 
 ### Usage
 1. Install the [Tunnel](https://github.com/isurfer21/tunnel/) SDK.
-2. Run `tunnel -x true` command on terminal to enable cross-domain communication.
+2. Run `tunnel -x` command on terminal to enable cross-domain communication.
 3. Click on the link to run the [Syncer app](https://isurfer21.github.io/syncer/app/).
 
 ### Description

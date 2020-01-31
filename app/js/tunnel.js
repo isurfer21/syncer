@@ -28,7 +28,7 @@ class Tunnel {
         xhr.setRequestHeader('authorization', 'Basic ' + (this.authToken || this.tunnel.authToken));
         xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
 
-        (!!payload) ? xhr.send(this.toURLQuery(payload)) : xhr.send();
+        (!!payload) ? xhr.send(this.toURLQuery(payload)): xhr.send();
     }
     authenticate(success, failure) {
         this.request(this.hostUrl + '/authenticate', null,
