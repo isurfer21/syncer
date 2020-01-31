@@ -182,22 +182,20 @@ class Setting {
             } else {
                 this.database.push(cargo);
             }
+            this.default();
             this.refresh();
             this.feedback.success('Saved!');
         }
     }
     onClear(e) {
-        this.editing = false;
+        this.form.trigger('reset');
         this.tagExcluder.list = [];
         this.tagExcluder.render();
-        this.trash.hide();
-        this.submit.html('Submit');
-        InputTopbar.getInstance().forNewEntry(true);
     }
     onTrash(e) {
         if (!!this.editing) {
             this.database.splice(this.index, 1);
-            this.onClear(e);
+            this.default();
             this.refresh();
             this.feedback.success('Deleted!');
         }
@@ -206,6 +204,15 @@ class Setting {
         let excludeItem = this.fieldExclusion.val();
         this.tagExcluder.create(excludeItem);
         this.fieldExclusion.val('');
+    }
+    default() {
+        this.editing = false;
+        this.form.trigger('reset');
+        this.tagExcluder.list = [];
+        this.tagExcluder.render();
+        this.trash.hide();
+        this.submit.html('Submit');
+        InputTopbar.getInstance().forNewEntry(true);
     }
     view(index) {
         this.editing = true;
@@ -223,8 +230,7 @@ class Setting {
         InputTopbar.getInstance().forNewEntry(false);
     }
     deactivate() {
-        this.onClear();
-        this.form.trigger('reset');
+        this.default();
         this.feedback.hide();
     }
     activate() {
@@ -299,8 +305,14 @@ class Sidebar {
             </div>
         </li>`.graft(title, description, index, this.cid);
     }
+    deselectAllItem() {
+        $('li.nc-list-item__appsidebar').removeClass('active');
+    }
     onClickItem(e) {
-        let index = $(e.currentTarget).data('index');
+        this.deselectAllItem();
+        let item = $(e.currentTarget);
+        let index = item.data('index');
+        item.addClass('active');
         Setting.getInstance().view(index);
         Action.getInstance().view(index);
         Topbar.getInstance().reset();
@@ -536,12 +548,6 @@ class Action {
         this.instruction.html('');
         this.form.trigger('reset');
     }
-    onAddNew(e) {
-        e.preventDefault();
-        console.log('Action.onAddNew');
-        InputTopbar.getInstance().forNewEntry(true);
-        InputTopbar.getInstance().controller.activateTab(InputTopbar.SETTING);
-    }
     deactivate() {
         this.onClear();
         this.feedback.hide();
@@ -550,7 +556,6 @@ class Action {
         if (this.index != undefined) {
             this.view(this.index);
         }
-        // this.addNew.show();
     }
     destroy() {
         this.submit.off('click', this.steers.onSubmit);
@@ -571,10 +576,6 @@ class Action {
         this.submit = this.form.find('button[type="submit"]');
         this.steers.onSubmit = this.onSubmit.bind(this);
         this.submit.on('click', this.steers.onSubmit);
-
-        this.addNew = this.form.find('button[type="button"]');
-        this.steers.onAddNew = this.onAddNew.bind(this);
-        this.addNew.on('click', this.steers.onAddNew);
 
         this.steers.genCommand = this.genCommand.bind(this);
         this.steers.getResponse = this.getResponse.bind(this);
@@ -740,6 +741,14 @@ class ControlPanel {
     constructor() {
         this.steers = {};
     }
+    onOpenNew(e) {
+        Sidebar.getInstance().deselectAllItem();
+        Action.getInstance().deactivate();
+        Setting.getInstance().deactivate();
+        Topbar.getInstance().controller.activateTab(Topbar.INPUT);
+        InputTopbar.getInstance().forNewEntry(true);
+        InputTopbar.getInstance().controller.activateTab(InputTopbar.SETTING);
+    }
     onOpenInfo(e) {
         window.open('https://isurfer21.github.io/syncer', '_blank');
     }
@@ -760,6 +769,10 @@ class ControlPanel {
         this.appHeaderInfo = this.appHeader.find('.icon[data-link="info"]');
         this.steers.onOpenInfo = this.onOpenInfo.bind(this);
         this.appHeaderInfo.on('click', this.steers.onOpenInfo);
+
+        this.appHeaderNew = this.appHeader.find('.icon[data-link="new"]');
+        this.steers.onOpenNew = this.onOpenNew.bind(this);
+        this.appHeaderNew.on('click', this.steers.onOpenNew);
 
         this.currentYear = $('.nc-currentyear');
         let cYear = (new Date()).getFullYear()
@@ -870,7 +883,7 @@ $(function() {
     appControlPanel.initialize();
     appAbout.initialize('appabout');
     appLogin.initialize('applogin');
-    appLogin.modal.open();
+    // appLogin.modal.open();
 
     let appTopbar = Topbar.getInstance();
     appTopbar.initialize('appcontainer');

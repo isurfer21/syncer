@@ -11,6 +11,14 @@
     margin-left: 24px;
 }
 
+.toolbar-header .bisector {
+    float: right;
+    position: relative;
+    padding: 0 4px;
+    margin-top: 1px;
+    color: darkgrey;    
+}
+
 .toolbar-header .icon {
     float: right;
     position: relative;
@@ -31,6 +39,14 @@
 .nc-list-wrapper__appsidebar {
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+.nc-list-item__appsidebar:hover {
+    background-color: lightgrey;
+}
+
+.nc-list-item__appsidebar.active:hover {
+    background-color: #1060bf;
 }
 
 .ns-dropdown {
